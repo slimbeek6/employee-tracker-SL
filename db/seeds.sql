@@ -1,4 +1,4 @@
-INSERT INTO departments (name) 
+INSERT INTO departments (department_name) 
 VALUES ("Engineering"),
 ("HR"),
 ("Finance"),
@@ -17,3 +17,4 @@ VALUES ("Junior Engineer", 100000, 1),
 
 INSERT INTO employees (first_name, last_name, role_id, department_id, manager_id)
 VALUES ("Shaun", "Limbeek", 5, 2, 2);
+
