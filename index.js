@@ -309,7 +309,7 @@ function removeRole() {
             var obj = {title: res[i].title, id: res[i].id};
             roleArr.push(obj);
         }
-        console.log(roleNames);
+        // console.log(roleNames);
         inquirer
         .prompt({
             name: "role",
