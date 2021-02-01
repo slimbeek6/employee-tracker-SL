@@ -111,7 +111,7 @@ function searchEmplDept() {
     });
 }
 
-var managerArr = [];
+var managerArr = ['null'];
 
 function searchEmplMan () {
     connection.query("SELECT name FROM managers", function(err, res) {
@@ -138,6 +138,7 @@ function searchEmplMan () {
 }
 
 var rolesArr = [];
+var mgrArr = ['null'];
 
 function addEmpl () {
     connection.query("SELECT * FROM managers", function(err, res) {
@@ -145,11 +146,7 @@ function addEmpl () {
             // console.log(res);
             var obj = {name: res[i].name, id: res[i].employee_id};
             managerArr.push(obj);
-        }
-
-        var mgrArr = [];
-        for (var j = 0; j < managerArr.length; j++) {
-            mgrArr.push(managerArr[j].name);
+            mgrArr.push(res[i].name);
         }
 
         connection.query("SELECT title FROM roles;", function(err, res) {
