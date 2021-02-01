@@ -91,12 +91,49 @@ function showEmployees() {
     });
 }
 
+var departmentArr = ["Engineering","HR","Finance","Sales"];
+
 function searchEmplDept() {
-    connection.query("SELECT * FROM employees", function(err, res) {
-        // console.log("\n");
-        console.table(res);
-        console.log("What would you like to do?");
-        runCMS();
+    inquirer
+    .prompt({
+        name: "department",
+        type: "list",
+        message: "What department would you like to see?",
+        choices: departmentArr
+    })
+    .then(function(answer) {
+        var departmentid = departmentArr.indexOf(answer.department) + 1;
+        // console.log(departmentid);
+        connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.name FROM employees LEFT JOIN roles ON roles.id = employees.role_id INNER JOIN departments ON employees.department_id = departments.id AND employees.department_id = ? LEFT JOIN managers ON managers.employee_id = employees.manager_id;", departmentid, function(err, res) {
+            console.table(res);
+            console.log("What would you like to do?");
+            runCMS();
+        });
     });
 }
 
+var managerArr = [];
+
+function searchEmplMan () {
+    connection.query("SELECT name FROM managers", function(err, res) {
+        for (var i=0; i < res.length; i++) {
+            managerArr.push(res[i].name);
+        }
+    
+        inquirer
+        .prompt({
+            name: "manager",
+            type: "list",
+            message: "What manager's team would you like to see?",
+            choices: managerArr
+        })
+        .then(function(answer) {
+            var managername = answer.manager;
+            connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.name FROM employees LEFT JOIN roles ON roles.id = employees.role_id LEFT JOIN departments ON employees.department_id = departments.id INNER JOIN managers ON managers.employee_id = employees.manager_id AND managers.name =?;", managername, function(err, res) {
+                console.table(res);
+                console.log("What would you like to do?");
+                runCMS();
+            });
+        });
+    });    
+}
