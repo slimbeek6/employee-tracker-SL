@@ -82,7 +82,7 @@ function runCMS () {
 }
 
 function showEmployees() {
-    connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.name FROM employees LEFT JOIN roles ON roles.id = employees.role_id LEFT JOIN departments ON employees.department_id = departments.id LEFT JOIN managers ON managers.employee_id = employees.manager_id;", function(err, res) {
+    connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.manager_name FROM employees LEFT JOIN roles ON roles.id = employees.role_id LEFT JOIN departments ON employees.department_id = departments.id LEFT JOIN managers ON managers.employee_id = employees.manager_id;", function(err, res) {
         // console.log("\n");
         console.table(res);
         console.log("What would you like to do?");
@@ -103,7 +103,7 @@ function searchEmplDept() {
     .then(function(answer) {
         var departmentid = departmentArr.indexOf(answer.department) + 1;
         // console.log(departmentid);
-        connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.name FROM employees LEFT JOIN roles ON roles.id = employees.role_id INNER JOIN departments ON employees.department_id = departments.id AND employees.department_id = ? LEFT JOIN managers ON managers.employee_id = employees.manager_id;", departmentid, function(err, res) {
+        connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.manager_name FROM employees LEFT JOIN roles ON roles.id = employees.role_id INNER JOIN departments ON employees.department_id = departments.id AND employees.department_id = ? LEFT JOIN managers ON managers.employee_id = employees.manager_id;", departmentid, function(err, res) {
             console.table(res);
             console.log("What would you like to do?");
             runCMS();
@@ -128,7 +128,7 @@ function searchEmplMan () {
         })
         .then(function(answer) {
             var managername = answer.manager;
-            connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.name FROM employees LEFT JOIN roles ON roles.id = employees.role_id LEFT JOIN departments ON employees.department_id = departments.id INNER JOIN managers ON managers.employee_id = employees.manager_id AND managers.name =?;", managername, function(err, res) {
+            connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.manager_name FROM employees LEFT JOIN roles ON roles.id = employees.role_id LEFT JOIN departments ON employees.department_id = departments.id INNER JOIN managers ON managers.employee_id = employees.manager_id AND managers.name =?;", managername, function(err, res) {
                 console.table(res);
                 console.log("What would you like to do?");
                 runCMS();
@@ -142,18 +142,19 @@ var mgrArr = ['null'];
 
 function addEmpl () {
     connection.query("SELECT * FROM managers", function(err, res) {
+        mgrArr = ['null'];
         for (var i=0; i < res.length; i++) {
             // console.log(res);
-            var obj = {name: res[i].name, id: res[i].employee_id};
+            var obj = {name: res[i].manager_name, id: res[i].employee_id};
             managerArr.push(obj);
-            mgrArr.push(res[i].name);
+            mgrArr.push(res[i].manager_name);
         }
 
         connection.query("SELECT title FROM roles;", function(err, res) {
             for (var i=0; i < res.length; i++) {
                 rolesArr.push(res[i].title);
             }
-            // console.log(managerArr);
+            // console.log(mgrArr);
 
             inquirer
             .prompt([
@@ -191,6 +192,7 @@ function addEmpl () {
                 var last_name = answer.last_name;
                 var role_id = rolesArr.indexOf(answer.role) +1;
                 var department_id = departmentArr.indexOf(answer.department) +1;
+                    console.log(department_id);
                 var mgr1 = mgrArr.indexOf(answer.manager);
                 // console.log(managerArr);
                 
