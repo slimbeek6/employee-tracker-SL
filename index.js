@@ -114,9 +114,10 @@ function searchEmplDept() {
 var managerArr = ['null'];
 
 function searchEmplMan () {
-    connection.query("SELECT name FROM managers", function(err, res) {
+    managerArr = [];
+    connection.query("SELECT manager_name FROM managers", function(err, res) {
         for (var i=0; i < res.length; i++) {
-            managerArr.push(res[i].name);
+            managerArr.push(res[i].manager_name);
         }
     
         inquirer
@@ -128,7 +129,7 @@ function searchEmplMan () {
         })
         .then(function(answer) {
             var managername = answer.manager;
-            connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.manager_name FROM employees LEFT JOIN roles ON roles.id = employees.role_id LEFT JOIN departments ON employees.department_id = departments.id INNER JOIN managers ON managers.employee_id = employees.manager_id AND managers.name =?;", managername, function(err, res) {
+            connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, managers.manager_name FROM employees LEFT JOIN roles ON roles.id = employees.role_id LEFT JOIN departments ON employees.department_id = departments.id INNER JOIN managers ON managers.employee_id = employees.manager_id AND managers.manager_name =?;", managername, function(err, res) {
                 console.table(res);
                 console.log("What would you like to do?");
                 runCMS();
