@@ -27,7 +27,7 @@ connection.connect(function(err) {
 });
 
 
-const cmsoptions = ["View All Employees", "View All Employees by Department", "View All Employees by Manager","Add Employee","Remove Employee", "Update Employee Role","Update Employee Manager","View All Roles", "Add Role","Remove Role","Exit"];
+const cmsoptions = ["View All Employees", "View All Employees by Department", "View All Employees by Manager","Add Employee","Remove Employee", "View All Departments","View All Roles", "Add Role","Remove Role","Exit"];
 
 function runCMS () {
     inquirer
@@ -59,12 +59,8 @@ function runCMS () {
                 removeEmpl();
                 break;
 
-            case "Update Employee Role":
-                updateEmplRole();
-                break;
-            
-            case "Update Employee Manager":
-                updateEmplMan();
+            case "View All Departments":
+                showDepartments();
                 break;
             
             case "View All Roles":
@@ -78,6 +74,9 @@ function runCMS () {
             case "Remove Role":
                 removeRole();
                 break;
+
+            case "Exit":
+                connection.end();
         }    
    });
 }
@@ -246,4 +245,98 @@ function removeEmpl () {
     });  
 }
 
+function showRoles () {
+    connection.query("SELECT * FROM roles;", function(err, res) {
+        // console.log("\n");
+        console.table(res);
+        console.log("What would you like to do?");
+        runCMS();
+    });
+}
 
+var deptArr = [];
+var deptNames = [];
+
+function addRole () {
+    connection.query("Select * FROM departments", function(err, res) {
+        for (var i =0; i < res.length; i++){
+            var obj = {department_name : res[i].department_name, id: res[i].id};
+            deptArr.push(obj);
+            deptNames.push(res[i].department_name)
+        }
+
+        inquirer
+        .prompt([
+            {
+                name: "role",
+                type: "input",
+                message: "What is the name of the role?"
+            },
+            {
+                name: "department",
+                type: "list",
+                message: "What department is this role in?",
+                choices: deptNames
+            },
+            {
+                name: "salary",
+                type: "decimal",
+                message: "What is the salary for this role?"
+            }
+        ])
+        .then(function(answer) {
+            var roleName = answer.role;
+            var departmentName = answer.department; 
+            var salaryAmt = answer.salary;
+            var deptInd = deptNames.indexOf(departmentName);
+            var deptid = deptArr[deptInd].id;
+            connection.query("INSERT INTO roles SET ?", {title: roleName, salary: salaryAmt, department_id: deptid}, function(err) {
+                if (err) throw err;
+                console.log("New role "+ roleName + " has been added to the role list");
+            });
+            runCMS();
+        });
+    });
+}
+
+var roleArr = [];
+var roleNames = [];
+
+function removeRole() {
+    connection.query("SELECT * FROM roles", function(err, res) {
+        for (var i =0; i < res.length; i++) {
+            roleNames.push(res[i].title);
+            var obj = {title: res[i].title, id: res[i].id};
+            roleArr.push(obj);
+        }
+        console.log(roleNames);
+        inquirer
+        .prompt({
+            name: "role",
+            type: "list",
+            message: "Which role would you like to delete?",
+            choices: roleNames
+        })
+        .then(function(answer) {
+            var roleNm = answer.role;
+            var role_ind = roleNames.indexOf(roleNm);
+            var role_id = roleArr[role_ind].id;
+
+            connection.query("DELETE FROM roles WHERE ?", {id: role_id}, function(err) {
+                if (err) throw err;
+                console.log("The role "+ roleNm + "was removed.");
+                runCMS();
+            });
+        });
+    });
+}
+
+
+function showDepartments () {
+    connection.query("SELECT * FROM departments;", function(err, res) {
+        // console.log("\n");
+        console.table(res);
+        console.log("What would you like to do?");
+        runCMS();
+    });
+}
